@@ -2,7 +2,7 @@
 using aplikacja4.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-
+using System;
 
 namespace aplikacja4.Controllers
 {
@@ -34,19 +34,20 @@ namespace aplikacja4.Controllers
                 while (dataReader.Read())
                 {
                     var st = new Student();
-                    st.FirstName = dataReader["FirstName"].ToString();
-                    st.LastName = dataReader["LastName"].ToString();
-                    st.BirthDate = dataReader["BirthDate"].ToString().Replace(" 00:00:00", "").ToString();
-                    st.Semester = (int)dataReader["Semester"];
-                    st.Studies = dataReader["Name"].ToString();
-                    students.Add(st);  // mam liste studentów sparsowaną do formatu JSON
-                
+                    
+                        st.FirstName = dataReader["FirstName"].ToString();
+                        st.LastName = dataReader["LastName"].ToString();
+                        st.BirthDate = dataReader["BirthDate"].ToString().Replace(" 00:00:00", "").ToString();
+                        st.Semester = (int)dataReader["Semester"];
+                        st.Studies = dataReader["Name"].ToString();
+                        students.Add(st);  // mam liste studentów sparsowaną do formatu JSON
+       
                 }
             }
             return Ok(students);
         }
 
-        // ----------------------------------------   zadanie 4.3
+        // ----------------------------------------   zadanie 4.5
         [HttpGet("{IndexNumber}")]
         public IActionResult GetStudent(string IndexNumber)
         {
@@ -54,7 +55,20 @@ namespace aplikacja4.Controllers
             using (var command = new SqlCommand())
             {
                 command.Connection = client;             
-                command.CommandText = "SELECT Student.IndexNumber, Student.FirstName, Student.LastName, Student.BirthDate, Enrollment.Semester, Studies.Name FROM Enrollment JOIN Student ON Enrollment.IdEnrollment = Student.IdEnrollment JOIN Studies ON Enrollment.IdStudy = Studies.IdStudy WHERE IndexNumber = '"+ IndexNumber+ "'";
+                command.CommandText = "SELECT Student.IndexNumber, Student.FirstName, Student.LastName, Student.BirthDate, Enrollment.Semester, Studies.Name FROM Enrollment JOIN Student ON Enrollment.IdEnrollment = Student.IdEnrollment JOIN Studies ON Enrollment.IdStudy = Studies.IdStudy WHERE IndexNumber = @IndexNo";
+
+
+                // sposob I (dłuższy, ale można różne dodatkowe opcje używać)
+                /*
+                SqlParameter param = new SqlParameter();
+                param.Value = IndexNumber;
+                param.ParameterName = "IndexNo";
+                command.Parameters.Add(param);
+                */
+
+                // sposob II (krótszy i wygodniejszy)
+                command.Parameters.AddWithValue("IndexNo", IndexNumber);
+
 
                 client.Open();
                 var dataReader = command.ExecuteReader();
