@@ -7,6 +7,6 @@
         public string BirthDate { get; set; }
         public int Semester { get; set; }
         public string Studies { get; set; }
-        public string IndexNumber { get; set; }  // zakomentowac do zadania 4.2
+        public string IndexNumber { get; set; }
     }
 }
